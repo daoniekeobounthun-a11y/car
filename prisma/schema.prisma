@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. ຜູ້ໃຊ້ລະບົບ (Admin / Staff)
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("STAFF") // SUPER_ADMIN, STAFF
+  createdAt DateTime @default(now())
+  
+  bookings  Booking[]
+}
+
+// 2. ຂໍ້ມູນລົດ (Cars)
+model Car {
+  id             String    @id @default(uuid())
+  brand          String    // ຍີ່ຫໍ້
+  model          String    // ລຸ້ນ
+  plateNumber    String    @unique // ປ້າຍທະບຽນ
+  status         String    @default("AVAILABLE") // AVAILABLE, RESERVED, IN_USE, MAINTENANCE
+  currentMileage Int       @default(0)
+  createdAt      DateTime  @default(now())
+
+  bookings       Booking[]
+}
+
+// 3. ຂໍ້ມູນລູກຄ້າ (Customer - CRM)
+model Customer {
+  id               String    @id @default(uuid())
+  fullName         String
+  phone            String    @unique
+  idCardOrPassport String    @unique // ບັດປະຈຳຕົວ ຫຼື ໜັງສືຜ່ານແດນ
+  driverLicense    String    @unique // ໃບຂັບຂີ່
+  isBlacklisted    Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+
+  bookings         Booking[]
+}
+
+// 4. ການຈອງລົດ (Booking & Reservation) - ຫົວໃຈຂອງລະບົບ
+model Booking {
+  id          String   @id @default(uuid())
+  bookingCode String   @unique
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  carId       String
+  car         Car      @relation(fields: [carId], references: [id])
+  staffId     String?
+  staff       User?    @relation(fields: [staffId], references: [id])
+  startDate   DateTime // ວັນເລີ່ມຕົ້ນເຊົ່າ
+  endDate     DateTime // ວັນສິ້ນສຸດເຊົ່າ
+  status      String   @default("PENDING") // PENDING, CONFIRMED, ONGOING, COMPLETED, CANCELLED
+  totalAmount Float    // ລາຄາລວມ
+  createdAt   DateTime @default(now())
+
+  payment     Payment?
+}
+
+// 5. ການຊຳລະເງິນ ແລະ ມັດຈຳ (Payment & Deposit)
+model Payment {
+  id                String   @id @default(uuid())
+  bookingId         String   @unique
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount            Float
+  depositAmount     Float    @default(0.0) // ເງິນມັດຈຳ
+  isDepositRefunded Boolean  @default(false) // คືນເງິນມັດຈຳແລ້ວບໍ
+  method            String   // CASH, QR_CODE, CREDIT_CARD
+  status            String   @default("PENDING") // PENDING, PAID
+  transactionRef    String?  // ລະຫັດອ້າງອີງ transaction
+  paidAt            DateTime?
+  createdAt         DateTime @default(now())
+}
