@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "CarForRent API",
-    "description": "CarForRent API requests grouped by module. All requests target http://localhost:5000.",
+    "description": "CarForRent API requests grouped by module. All requests target {{baseUrl}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -15,6 +15,11 @@
     ]
   },
   "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
     {
       "key": "token",
       "value": "",
@@ -52,12 +57,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": []
             },
             "auth": {
@@ -82,12 +85,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/auth/register",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/auth/register",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "auth",
@@ -120,12 +121,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/auth/login",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/auth/login",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "auth",
@@ -168,12 +167,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/auth/profile",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/auth/profile",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "auth",
@@ -194,12 +191,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/users",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/users",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "users"
@@ -214,12 +209,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/users/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/users/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "users",
@@ -240,12 +233,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/users/change-password",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/users/change-password",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "users",
@@ -275,12 +266,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/users/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/users/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "users",
@@ -305,12 +294,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/users/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/users/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "users",
@@ -336,12 +323,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/cars",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/cars",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "cars"
@@ -365,12 +350,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/cars",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/cars",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "cars"
@@ -393,12 +376,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/cars/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/cars/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "cars",
@@ -419,12 +400,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/cars/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/cars/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "cars",
@@ -449,12 +428,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/cars/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/cars/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "cars",
@@ -480,12 +457,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/customers",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/customers",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "customers"
@@ -509,12 +484,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/customers",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/customers",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "customers"
@@ -529,12 +502,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/customers/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/customers/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "customers",
@@ -555,12 +526,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/customers/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/customers/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "customers",
@@ -585,12 +554,10 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/customers/{{id}}/blacklist",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/customers/{{id}}/blacklist",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "customers",
@@ -607,12 +574,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/customers/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/customers/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "customers",
@@ -638,12 +603,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/bookings",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/bookings",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "bookings"
@@ -667,12 +630,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/bookings",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/bookings",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "bookings"
@@ -687,12 +648,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/bookings/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/bookings/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "bookings",
@@ -713,12 +672,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/bookings/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/bookings/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "bookings",
@@ -743,12 +700,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/bookings/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/bookings/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "bookings",
@@ -774,12 +729,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/payments",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/payments",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "payments"
@@ -803,12 +756,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/payments",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/payments",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "payments"
@@ -823,12 +774,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/payments/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/payments/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "payments",
@@ -849,12 +798,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/payments/{{id}}",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/payments/{{id}}",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "payments",
@@ -879,12 +826,10 @@
             "method": "PATCH",
             "header": [],
             "url": {
-              "raw": "http://localhost:5000/api/payments/{{id}}/refund-deposit",
-              "protocol": "http",
+              "raw": "{{baseUrl}}/api/payments/{{id}}/refund-deposit",
               "host": [
-                "localhost"
+                "{{baseUrl}}"
               ],
-              "port": "5000",
               "path": [
                 "api",
                 "payments",

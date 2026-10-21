@@ -1,8 +1,13 @@
-
-import { PrismaClient } from '@prisma/client/extension';
+import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 import * as bcrypt from 'bcryptjs';
+import 'dotenv/config';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
     console.log('🌱 กำລັງເລີ່ມຕົ້ນ Seed ຂໍ້ມູນລົງ Database...');
@@ -20,7 +25,7 @@ async function main() {
     const superAdmin = await prisma.user.create({
         data: {
             name: 'Super Admin',
-            email: 'admin@carrental.com',
+            email: 'test@gmail.com',
             password: hashedPassword,
             role: 'SUPER_ADMIN',
         },
