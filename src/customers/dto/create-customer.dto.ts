@@ -1,23 +1,23 @@
-import { IsNotEmpty, IsString, IsOptional, IsBoolean } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateCustomerDto {
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນຊື່ ແລະ ນາມສະກຸນ' })
     @IsString()
-    @IsNotEmpty()
     fullName: string;
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນເບີໂທລະສັບ' })
     @IsString()
-    @IsNotEmpty()
     phone: string;
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນເລກບັດປະຈຳຕົວ ຫຼື ໜັງສືຜ່ານແດນ' })
     @IsString()
-    @IsNotEmpty()
     idCardOrPassport: string;
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນເລກໃບຂັບຂີ່' })
     @IsString()
-    @IsNotEmpty()
     driverLicense: string;
 
-    @IsBoolean()
     @IsOptional()
+    @IsBoolean()
     isBlacklisted?: boolean;
 }

@@ -1,140 +1,107 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service.js';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto.js';
-import { UpdateBookingDto } from './dto/update-booking.dto.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class BookingsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) { }
 
-  // 1. ສ້າງການຈອງລົດໃໝ່
-  async create(dto: CreateBookingDto, staffId: string) {
-    // ກວດສອບວ່າລູກຄ້າໃນລະບົບມີຕົວຕົນ ແລະ ບໍ່ໄດ້ຖືກ Blacklist
+  async create(dto: CreateBookingDto, staffId?: number) {
+    // 1. ກວດສອບ Customer (id ເປັນ number)
     const customer = await this.prisma.customer.findUnique({
       where: { id: dto.customerId },
     });
     if (!customer) {
-      throw new NotFoundException('Customer not found');
-    }
-    if (customer.isBlacklisted) {
-      throw new BadRequestException('This customer is blacklisted and cannot rent a car');
+      throw new NotFoundException(`ບໍ່ພົບ Customer ID = ${dto.customerId}`);
     }
 
-    // ກວດສອບວ່າລົດມີຕົວຕົນ ແລະ ພ້ອມໃຫ້ເຊົ່າ (AVAILABLE)
+    // 2. ກວດສອບ Car (id ເປັນ number)
     const car = await this.prisma.car.findUnique({
       where: { id: dto.carId },
     });
     if (!car) {
-      throw new NotFoundException('Car not found');
+      throw new NotFoundException(`ບໍ່ພົບ Car ID = ${dto.carId}`);
     }
+
     if (car.status !== 'AVAILABLE') {
-      throw new BadRequestException('Car is not available for rent');
+      throw new BadRequestException('ລົດຄັນນີ້ບໍ່ພ້ອມໃຊ້ງານ ຫຼື ຖືກຈອງແລ້ວ');
     }
 
-    // ສ້າງລະຫັດການຈອງອັດຕະໂນມັດ ຕົວຢ່າງ: BKG-1718293
-    const bookingCode = `BKG-${Date.now().toString().slice(-6)}`;
+    const bookingCode = `BK-${Date.now()}`;
 
-    // ໃຊ້ Transaction ເພື່ອບັນທຶກການຈອງ ແລະ ອັບເດດສະຖານະລົດເປັນ RENTED ພ້ອມກັນ
-    const result = await this.prisma.$transaction(async (tx) => {
+    // 3. ເປີດ Transaction ສ້າງ Booking ແລະ ອັບເດດ Status ລົດ
+    return await this.prisma.$transaction(async (tx) => {
       const booking = await tx.booking.create({
         data: {
           bookingCode,
           customerId: dto.customerId,
           carId: dto.carId,
-          staffId, // ພະນັກງານທີ່ทำรายการ
+          staffId: staffId ? Number(staffId) : null,
           startDate: new Date(dto.startDate),
           endDate: new Date(dto.endDate),
           totalAmount: dto.totalAmount,
-          status: dto.status || 'CONFIRMED',
+          status: 'PENDING',
         },
       });
 
-      // ປ່ຽນສະຖານະລົດເປັນ RENTED
       await tx.car.update({
         where: { id: dto.carId },
-        data: { status: 'RENTED' },
+        data: { status: 'RESERVED' },
       });
 
       return booking;
     });
-
-    return { message: 'Booking created successfully', booking: result };
   }
 
-  // 2. ດຶງລາຍຊື່ການຈອງທັງໝົດ
   async findAll() {
     return await this.prisma.booking.findMany({
       include: {
         customer: true,
         car: true,
-        staff: { select: { id: true, name: true, email: true } },
+        staff: true,
         payment: true,
       },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  // 3. ດຶງຂໍ້ມູນການຈອງຕາມ ID
-  async findOne(id: string) {
+  async findOne(id: number) {
     const booking = await this.prisma.booking.findUnique({
       where: { id },
       include: {
         customer: true,
         car: true,
-        staff: { select: { id: true, name: true, email: true } },
+        staff: true,
         payment: true,
       },
     });
 
     if (!booking) {
-      throw new NotFoundException('Booking not found');
+      throw new NotFoundException(`ບໍ່ພົບ Booking ID = ${id}`);
     }
+
     return booking;
   }
 
-  // 4. ອັບເດດຂໍ້ມູນການຈອງ (ຖ້າປ່ຽນສະຖານະເປັນ COMPLETED ຫຼື CANCELLED ຈະປົດປ່ອຍລົດໃຫ້ກັບມາ AVAILABLE)
-  async update(id: string, dto: UpdateBookingDto) {
+  async cancel(id: number) {
     const booking = await this.findOne(id);
 
-    const updatedBooking = await this.prisma.$transaction(async (tx) => {
-      const updated = await tx.booking.update({
+    return await this.prisma.$transaction(async (tx) => {
+      const updatedBooking = await tx.booking.update({
         where: { id },
-        data: {
-          startDate: dto.startDate ? new Date(dto.startDate) : undefined,
-          endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-          totalAmount: dto.totalAmount,
-          status: dto.status,
-        },
+        data: { status: 'CANCELLED' },
       });
 
-      // ຖ້າການຈອງສຳເລັດ ຫຼື ຖືກຍົກເລີກ ໃຫ້ປ່ຽນສະຖານະລົດກັບຄືນເປັນ AVAILABLE
-      if (dto.status === 'COMPLETED' || dto.status === 'CANCELLED') {
-        await tx.car.update({
-          where: { id: booking.carId },
-          data: { status: 'AVAILABLE' },
-        });
-      }
-
-      return updated;
-    });
-
-    return { message: 'Booking updated successfully', booking: updatedBooking };
-  }
-
-  // 5. ລຶບການຈອງ ແລະ ປົດປ່ອຍລົດ
-  async remove(id: string) {
-    const booking = await this.findOne(id);
-
-    await this.prisma.$transaction(async (tx) => {
       await tx.car.update({
         where: { id: booking.carId },
         data: { status: 'AVAILABLE' },
       });
 
-      await tx.booking.delete({
-        where: { id },
-      });
+      return updatedBooking;
     });
-
-    return { message: 'Booking deleted successfully' };
   }
 }

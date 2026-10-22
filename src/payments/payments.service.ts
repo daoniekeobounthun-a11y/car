@@ -3,89 +3,76 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreatePaymentDto } from './dto/create-payment.dto.js';
 import { UpdatePaymentDto } from './dto/update-payment.dto.js';
 
-
 @Injectable()
 export class PaymentsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) { }
 
-  // 1. ສ້າງຂໍ້ມູນການຊຳລະເງິນ (ມັກຖືກເອີ້ນພ້ອມກັບການສ້າງ Booking)
   async create(dto: CreatePaymentDto) {
-    const payment = await this.prisma.payment.create({
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: dto.bookingId },
+    });
+
+    if (!booking) {
+      throw new NotFoundException(`ບໍ່ພົບຂໍ້ມູນການຈອງ ID = ${dto.bookingId}`);
+    }
+
+    return await this.prisma.payment.create({
       data: {
         bookingId: dto.bookingId,
         amount: dto.amount,
-        depositAmount: dto.depositAmount || 0.0,
+        depositAmount: dto.depositAmount ?? 0.0,
         method: dto.method,
-        status: 'PENDING',
+        transactionRef: dto.transactionRef,
+        status: 'PAID',
+        paidAt: new Date(),
       },
     });
-    return { message: 'Payment record created successfully', payment };
   }
 
-  // 2. ເບິ່ງລາຍຊື່ການຊຳລະເງິນທັງໝົດ
   async findAll() {
     return await this.prisma.payment.findMany({
-      include: {
-        booking: {
-          include: {
-            customer: true,
-            car: true,
-          },
-        },
-      },
+      include: { booking: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  // 3. ເບິ່ງລາຍລະອຽດການຊຳລະເງິນຕາມ ID
-  async findOne(id: string) {
+  async findOne(id: number) {
     const payment = await this.prisma.payment.findUnique({
       where: { id },
-      include: {
-        booking: {
-          include: {
-            customer: true,
-            car: true,
-          },
-        },
-      },
+      include: { booking: true },
     });
 
     if (!payment) {
-      throw new NotFoundException('Payment record not found');
+      throw new NotFoundException(`ບໍ່ພົບຂໍ້ມູນການຊຳລະເງິນ ID = ${id}`);
     }
+
     return payment;
   }
 
-  // 4. ອັບເດດສະຖານະການຊຳລະເງິນ ຫຼື ລະຫັດອ້າງອີງ
-  async update(id: string, dto: UpdatePaymentDto) {
+  async update(id: number, dto: UpdatePaymentDto) {
     await this.findOne(id);
 
-    const updateData: any = { ...dto };
-
-    // ຖ້າປ່ຽນສະຖານະເປັນ PAID ໃຫ້ບັນທຶກເວລາ paidAt ໄວ້ພ້ອມ
-    if (dto.status === 'PAID') {
-      updateData.paidAt = new Date();
-    }
-
-    const updatedPayment = await this.prisma.payment.update({
+    return await this.prisma.payment.update({
       where: { id },
-      data: updateData,
+      data: dto,
     });
-
-    return { message: 'Payment updated successfully', payment: updatedPayment };
   }
 
-  // 5. ຟັງຊັນສຳລັບຄືນເງິນມັດຈຳ (Deposit Refund)
-  async refundDeposit(id: string) {
-    const payment = await this.findOne(id);
+  // ເພີ່ມ Method refundDeposit ທີ່ນີ້
+  async refundDeposit(id: number) {
+    await this.findOne(id);
 
-    const updatedPayment = await this.prisma.payment.update({
+    return await this.prisma.payment.update({
       where: { id },
-      data: {
-        isDepositRefunded: true,
-      },
+      data: { isDepositRefunded: true },
     });
+  }
 
-    return { message: 'Deposit refunded successfully', payment: updatedPayment };
+  async remove(id: number) {
+    await this.findOne(id);
+
+    return await this.prisma.payment.delete({
+      where: { id },
+    });
   }
 }

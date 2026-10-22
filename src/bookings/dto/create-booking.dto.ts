@@ -1,34 +1,23 @@
-import { IsNotEmpty, IsString, IsNumber, IsDateString, IsOptional, IsEnum } from 'class-validator';
-
-enum BookingStatus {
-    PENDING = 'PENDING',
-    CONFIRMED = 'CONFIRMED',
-    COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED',
-}
+import { IsDateString, IsInt, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateBookingDto {
-    @IsString()
-    @IsNotEmpty()
-    customerId: string; // ລະຫັດລູກຄ້າ
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນ customerId' })
+    @IsInt()
+    customerId: number;
 
-    @IsString()
-    @IsNotEmpty()
-    carId: string; // ລະຫັດລົດທີ່ຕ້ອງການເຊົ່າ
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນ carId' })
+    @IsInt()
+    carId: number;
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນວັນເລີ່ມຕົ້ນເຊົ່າ' })
     @IsDateString()
-    @IsNotEmpty()
-    startDate: string; // ວັນທີເລີ່ມເຊົ່າ
+    startDate: string;
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນວັນສິ້ນສຸດເຊົ່າ' })
     @IsDateString()
-    @IsNotEmpty()
-    endDate: string; // ວັນທີສິ້ນສຸດການເຊົ່າ
+    endDate: string;
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນລາຄາລວມ' })
     @IsNumber()
-    @IsNotEmpty()
-    totalAmount: number; // ລາຄາລວມທັງໝົດ
-
-    @IsEnum(BookingStatus)
-    @IsOptional()
-    status?: BookingStatus; // ສະຖານະການຈອງ
+    totalAmount: number;
 }

@@ -1,92 +1,81 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service.js';
-import { CreateCustomerDto } from './dto/create-customer.dto.js';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateCustomerDto } from './dto/update-customer.dto.js';
+import { CreateCustomerDto } from './dto/create-customer.dto.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Injectable()
 export class CustomersService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) { }
 
-  // 1. ເພີ່ມຂໍ້ມູນລູກຄ້າໃໝ່
-  async create(dto: CreateCustomerDto) {
-    const customer = await this.prisma.customer.create({
-      data: {
-        fullName: dto.fullName,
-        phone: dto.phone,
-        idCardOrPassport: dto.idCardOrPassport,
-        driverLicense: dto.driverLicense,
-        isBlacklisted: dto.isBlacklisted || false,
+  // ==================== 1. ສ້າງຂໍ້ມູນລູກຄ້າ ====================
+  async create(createCustomerDto: CreateCustomerDto) {
+    const { phone, idCardOrPassport, driverLicense } = createCustomerDto;
+
+    // ກວດສອບຂໍ້ມູນຊ້ຳ (phone, idCard, driverLicense)
+    const existingCustomer = await this.prisma.customer.findFirst({
+      where: {
+        OR: [
+          { phone },
+          { idCardOrPassport },
+          { driverLicense },
+        ],
       },
     });
-    return { message: 'Customer created successfully', customer };
+
+    if (existingCustomer) {
+      throw new ConflictException(
+        'ເບີໂທ, ບັດປະຈຳຕົວ/Passport ຫຼື ໃບຂັບຂີ່ ນີ້ມີຢູ່ໃນລະບົບແລ້ວ',
+      );
+    }
+
+    return await this.prisma.customer.create({
+      data: createCustomerDto,
+    });
   }
 
-  // 2. ດຶງລາຍຊື່ລູກຄ້າທັງໝົດ
+  // ==================== 2. ດຶງຂໍ້ມູນລູກຄ້າທັງໝົດ ====================
   async findAll() {
     return await this.prisma.customer.findMany({
-      include: {
-        bookings: true, // ດຶງປະຫວັດການຈອງລົດມາພ້ອມ
-      },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
-  // 3. ດຶງຂໍ້ມູນລູກຄ້າຕາມ ID
-  async findOne(id: string) {
+  // ==================== 3. ດຶງຂໍ້ມູນລູກຄ້າຕາມ ID (Int) ====================
+  async findOne(id: number) {
     const customer = await this.prisma.customer.findUnique({
       where: { id },
       include: {
-        bookings: {
-          include: {
-            car: true,
-            payment: true,
-          },
-        },
+        bookings: true, // ດຶງປະວັດການຈອງຂອງລູກຄ່ານີ້ມາພ້ອມ
       },
     });
 
     if (!customer) {
-      throw new NotFoundException('Customer not found');
+      throw new NotFoundException(`ບໍ່ພົບຂໍ້ມູນລູກຄ້າ ID = ${id}`);
     }
+
     return customer;
   }
 
-  // 4. ອັບເດດຂໍ້ມູນລູກຄ້າ
-  async update(id: string, dto: UpdateCustomerDto) {
-    await this.findOne(id); // ກວດສອບວ່າພົບລູກຄ້າหรือไม่
+  // ==================== 4. ອັບເດດຂໍ້ມູນລູກຄ້າ ====================
+  async update(id: number, updateCustomerDto: UpdateCustomerDto) {
+    await this.findOne(id); // ກວດສອບກ່ອນວ່າ ID ນີ້ມີຢູ່ແທ້ບໍ
 
-    const updatedCustomer = await this.prisma.customer.update({
+    return await this.prisma.customer.update({
       where: { id },
-      data: dto,
+      data: updateCustomerDto,
     });
-
-    return { message: 'Customer updated successfully', customer: updatedCustomer };
   }
 
-  // 5. ຈັດການສະຖານະ Blacklist (ສຳລັບລູກຄ້າທີ່ມີບັນຫາ)
-  async toggleBlacklist(id: string) {
-    const customer = await this.findOne(id);
+  // ==================== 5. ລົບຂໍ້ມູນລູກຄ້າ ====================
+  async remove(id: number) {
+    await this.findOne(id); // ກວດສອບກ່ອນວ່າ ID ນີ້ມີຢູ່ແທ້ບໍ
 
-    const updatedCustomer = await this.prisma.customer.update({
-      where: { id },
-      data: {
-        isBlacklisted: !customer.isBlacklisted,
-      },
-    });
-
-    return {
-      message: `Customer blacklist status updated to ${updatedCustomer.isBlacklisted}`,
-      customer: updatedCustomer
-    };
-  }
-
-  // 6. ລຶບຂໍ້ມູນລູກຄ້າ
-  async remove(id: string) {
-    await this.findOne(id);
-
-    await this.prisma.customer.delete({
+    return await this.prisma.customer.delete({
       where: { id },
     });
-
-    return { message: 'Customer deleted successfully' };
   }
 }

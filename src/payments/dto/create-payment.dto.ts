@@ -1,24 +1,23 @@
-import { IsNotEmpty, IsNumber, IsString, IsEnum, IsOptional } from 'class-validator';
-
-enum PaymentMethod {
-    CASH = 'CASH',
-    QR_CODE = 'QR_CODE',
-    CREDIT_CARD = 'CREDIT_CARD',
-}
+import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePaymentDto {
-    @IsString()
-    @IsNotEmpty()
-    bookingId: string;
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນ bookingId' })
+    @IsInt()
+    bookingId: number; // ປ່ຽນເປັນ number
 
+    @IsNotEmpty({ message: 'ກະລຸນາປ້ອນຈຳນວນເງິນ' })
     @IsNumber()
-    @IsNotEmpty()
     amount: number;
 
-    @IsNumber()
     @IsOptional()
+    @IsNumber()
     depositAmount?: number;
 
-    @IsEnum(PaymentMethod)
-    method: PaymentMethod;
+    @IsNotEmpty({ message: 'ກະລຸນາລະບຸວິທີການຊຳລະເງິນ' })
+    @IsString()
+    method: string;
+
+    @IsOptional()
+    @IsString()
+    transactionRef?: string;
 }
