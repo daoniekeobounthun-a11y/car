@@ -27,22 +27,22 @@
     },
     {
       "key": "id",
-      "value": "replace-with-id",
+      "value": "1",
       "type": "string"
     },
     {
       "key": "customerId",
-      "value": "replace-with-customer-id",
+      "value": "1",
       "type": "string"
     },
     {
       "key": "carId",
-      "value": "replace-with-car-id",
+      "value": "1",
       "type": "string"
     },
     {
       "key": "bookingId",
-      "value": "replace-with-booking-id",
+      "value": "1",
       "type": "string"
     }
   ],
@@ -184,6 +184,38 @@
     {
       "name": "Users",
       "item": [
+        {
+          "name": "POST /api/users",
+          "description": "เพิ่มผู้ใช้ใหม่ (Admin/Staff)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Somxay Dev\",\n  \"email\": \"somxay@carrental.com\",\n  \"password\": \"password123\",\n  \"role\": \"STAFF\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
         {
           "name": "GET /api/users",
           "description": "ดูรายชื่อผู้ใช้",

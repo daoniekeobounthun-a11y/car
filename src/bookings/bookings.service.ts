@@ -11,20 +11,32 @@ export class BookingsService {
   constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: CreateBookingDto, staffId?: number) {
+    const customerId = Math.floor(Number(dto.customerId));
+    const carId = Math.floor(Number(dto.carId));
+    const totalAmount = Number(dto.totalAmount);
+
+    if (isNaN(customerId) || customerId <= 0) {
+      throw new BadRequestException('customerId ຕ້ອງເປັນຈຳນວນຖ້ວນທີ່ຖືກຕ້ອງ (valid integer)');
+    }
+
+    if (isNaN(carId) || carId <= 0) {
+      throw new BadRequestException('carId ຕ້ອງເປັນຈຳນວນຖ້ວນທີ່ຖືກຕ້ອງ (valid integer)');
+    }
+
     // 1. ກວດສອບ Customer (id ເປັນ number)
     const customer = await this.prisma.customer.findUnique({
-      where: { id: dto.customerId },
+      where: { id: customerId },
     });
     if (!customer) {
-      throw new NotFoundException(`ບໍ່ພົບ Customer ID = ${dto.customerId}`);
+      throw new NotFoundException(`ບໍ່ພົບ Customer ID = ${customerId}`);
     }
 
     // 2. ກວດສອບ Car (id ເປັນ number)
     const car = await this.prisma.car.findUnique({
-      where: { id: dto.carId },
+      where: { id: carId },
     });
     if (!car) {
-      throw new NotFoundException(`ບໍ່ພົບ Car ID = ${dto.carId}`);
+      throw new NotFoundException(`ບໍ່ພົບ Car ID = ${carId}`);
     }
 
     if (car.status !== 'AVAILABLE') {
@@ -38,18 +50,18 @@ export class BookingsService {
       const booking = await tx.booking.create({
         data: {
           bookingCode,
-          customerId: dto.customerId,
-          carId: dto.carId,
-          staffId: staffId ? Number(staffId) : null,
+          customerId,
+          carId,
+          staffId: staffId ? Math.floor(Number(staffId)) : null,
           startDate: new Date(dto.startDate),
           endDate: new Date(dto.endDate),
-          totalAmount: dto.totalAmount,
+          totalAmount: isNaN(totalAmount) ? dto.totalAmount : totalAmount,
           status: 'PENDING',
         },
       });
 
       await tx.car.update({
-        where: { id: dto.carId },
+        where: { id: carId },
         data: { status: 'RESERVED' },
       });
 

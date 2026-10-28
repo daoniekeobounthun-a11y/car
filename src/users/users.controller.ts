@@ -6,10 +6,12 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
 import { ChangePasswordDto } from './dto/change-password.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UsersService } from './users.service.js';
@@ -18,6 +20,11 @@ import { UsersService } from './users.service.js';
 @Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+  @Post()
+  create(@Body() dto: CreateUserDto) {
+    return this.usersService.create(dto);
+  }
 
   @Get()
   findAll() {
